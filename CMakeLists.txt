@@ -19,6 +19,9 @@ add_definitions(-DdLIBCCD_CYL_CYL)
 project(irrlamb)
 subdirs(tools)
 
+# options
+option(USE_SYSTEM_LUA "Use system-provided Lua instead of bundled version." OFF)
+
 # add extra find modules
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
@@ -28,7 +31,9 @@ if(WIN32)
 	add_definitions(-DPLATFORM=1)
 elseif(UNIX)
 	add_definitions(-DPLATFORM=0)
-	add_definitions(-DLUA_USE_LINUX)
+	if(NOT USE_SYSTEM_LUA)
+		add_definitions(-DLUA_USE_LINUX)
+	endif()
 	set(EXTRA_LIBS ${EXTRA_LIBS} dl)
 endif()
 
@@ -88,8 +93,19 @@ include_directories(${JPEG_INCLUDE_DIRS})
 # add source code
 file(GLOB_RECURSE SRC_MAIN src/*.c src/*.cpp src/*.h)
 
+# build bundled lua conditionally
+if(USE_SYSTEM_LUA)
+	find_package(Lua REQUIRED)
+	include_directories(${LUA_INCLUDE_DIR})
+	set(EXTRA_LIBS ${EXTRA_LIBS} ${LUA_LIBRARIES})
+else()
+	file(GLOB SRC_LUA thirdparty/lua/*.c thirdparty/lua/*.h)
+	include_directories("thirdparty/src/lua")
+endif()
+
 file(GLOB SRC_ALL
 	${SRC_MAIN}
+	${SRC_LUA}
 	src/resource.rc
 )
 

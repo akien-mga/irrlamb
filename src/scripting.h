@@ -16,7 +16,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 #pragma once
-#include <lua/lua.hpp>
+#include <lua.hpp>
 #include <list>
 #include <string>
 #include <map>
